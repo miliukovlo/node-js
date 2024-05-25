@@ -14,7 +14,8 @@ const UserModel = sequelize.define(
         },
         email: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            unique: true,
         },
         domain: {
             type: DataTypes.STRING,

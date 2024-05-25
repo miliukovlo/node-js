@@ -41,6 +41,9 @@ class UserController {
 
     async getUser (req, res, next) {
         const {id} = req.params
+        if (typeof id !== 'number') {
+            return next(ApiError.badRequest('Вы ввели не корректный id пользователя!'))
+        }
         const user = await UserModel.findOne(
             {
                 where: {
@@ -126,10 +129,23 @@ class UserController {
         if (users.count === 0) {
             return next(ApiError.badRequest('Пользователей с таким возрастом не найдено!'))
         }
-        return res.json(users)
+        return res.json(users.rows)
     }
 
     //Получение пользователей с определенным доменом
-    
+    async getUsersByDomain (req, res, next) {
+        const {domain} = req.params
+        const users = await UserModel.findAndCountAll({
+            where: {
+                domain: domain.trim()
+            }
+        })
+        if (users.count === 0) {
+            return next(ApiError.badRequest('Пользователей с таким доменом не найдено!'))
+        }
+        return res.json(users.rows)
+    }
+
+    //Получение отсортированного списка пользователей по имени
 }
 module.exports = new UserController()

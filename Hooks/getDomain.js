@@ -4,7 +4,7 @@ const getDomain = (email) => {
         const partsOfDomain = parts[1].split('.')
         if (partsOfDomain.length !== 1) {
             const domain = partsOfDomain[0]
-            return domain;
+            return domain.trim();
         } else {
             return ''
         }

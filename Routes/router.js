@@ -8,5 +8,6 @@ router.get('/users/:id', UserController.getUser)
 router.delete('/users/:id', UserController.deleteUser)
 router.put('/users/:id', UserController.putUser)
 router.get('/users/age/:age', UserController.getUsersByAge)
+router.get('/users/domain/:domain', UserController.getUsersByDomain)
 
 module.exports = router

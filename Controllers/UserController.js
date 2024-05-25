@@ -83,6 +83,9 @@ class UserController {
 
         const {id} = req.params;
         const {name, age, email} = req.body;
+        if (!name && !age && !email) {
+            return next(ApiError.badRequest('Вы ничего не указали!'))
+        }
         let user = await UserModel.findOne({
             where: {
                 id

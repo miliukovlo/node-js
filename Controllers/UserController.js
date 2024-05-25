@@ -12,7 +12,9 @@ class UserController {
             return next(ApiError.badRequest('Вы не ввели данные'))
         }
         const isUserInDB = await UserModel.findOne({
-            where: {email}
+            where: {
+                email
+            }
         })
         if (isUserInDB) {
             return next(ApiError.badRequest('Пользователь с таким email уже существует'))
@@ -41,7 +43,9 @@ class UserController {
         const {id} = req.params
         const user = await UserModel.findOne(
             {
-                where: {id}
+                where: {
+                    id
+                }
             }
         )
         if (!user) {
@@ -51,11 +55,13 @@ class UserController {
     }
 
     // Удаление пользователя из таблицы
-    async deleteUser (req, res) {
+    async deleteUser (req, res, next) {
         const {id} = req.params
         const user = await UserModel.findOne(
             {
-                where: {id}
+                where: {
+                    id
+                }
             }
         )
         if (!user) {
@@ -75,12 +81,16 @@ class UserController {
         const {id} = req.params;
         const {name, age, email} = req.body;
         let user = await UserModel.findOne({
-            where: {id}
+            where: {
+                id
+            }
         })
         const domain = getDomain(email ? email : user.email);
 
         const emailInDB = await UserModel.findOne({
-            where: {email: email ? email : user.email}
+            where: {
+                email: email ? email : user.email
+            }
         })
     
         if (!user) {
@@ -104,6 +114,22 @@ class UserController {
     
         return res.json(user);
     }
+
+    //Получение пользователей с определенным возрастом
+    async getUsersByAge (req, res, next) {
+        const {age} = req.params
+        const users = await UserModel.findAndCountAll({
+            where: {
+                age: age
+            }
+        })
+        if (users.count === 0) {
+            return next(ApiError.badRequest('Пользователей с таким возрастом не найдено!'))
+        }
+        return res.json(users)
+    }
+
+    //Получение пользователей с определенным доменом
     
 }
 module.exports = new UserController()

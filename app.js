@@ -1,6 +1,7 @@
 const express = require('express')
 const dotenv = require('dotenv')
 const sequelize = require('./db/db')
+const UserModel = require('./Models/UserModel')
 
 dotenv.config()
 
@@ -12,7 +13,7 @@ app.use(express.json())
 const start = async () => {
     try {
         await sequelize.authenticate()
-        await sequelize.sync()
+        await UserModel.sync()
         app.listen(port, () => {
             console.log(`Сервер запущен на ${port} порту`)
         })

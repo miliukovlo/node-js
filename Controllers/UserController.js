@@ -41,7 +41,7 @@ class UserController {
 
     async getUser (req, res, next) {
         const {id} = req.params
-        if (typeof id !== 'number') {
+        if (!Number(id)) {
             return next(ApiError.badRequest('Вы ввели не корректный id пользователя!'))
         }
         const user = await UserModel.findOne(
@@ -147,5 +147,15 @@ class UserController {
     }
 
     //Получение отсортированного списка пользователей по имени
+    async getSortedUsersByName(req, res, next) {
+        const users = await UserModel.findAll({
+            order: [['name', 'ASC']]
+        });
+        if (users.length === 0) {
+            return next(ApiError.badRequest('В базе данных нет пользователей!'))
+        }
+        return res.json(users);
+    }
+    
 }
 module.exports = new UserController()

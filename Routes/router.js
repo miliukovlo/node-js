@@ -3,6 +3,7 @@ const router = new Router()
 const UserController = require('../Controllers/UserController')
 
 router.get('/users', UserController.getAllUsers)
+router.get('/users/sorted', UserController.getSortedUsersByName)
 router.post('/users', UserController.createUser)
 router.get('/users/:id', UserController.getUser)
 router.delete('/users/:id', UserController.deleteUser)

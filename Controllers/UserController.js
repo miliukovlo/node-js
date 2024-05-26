@@ -1,6 +1,7 @@
 const UserModel = require("../Models/UserModel")
 const ApiError = require('../Error/ApiError')
 const getDomain = require("../Hooks/getDomain")
+const fs = require('fs')
 
 class UserController {
 
@@ -24,6 +25,16 @@ class UserController {
             return next(ApiError.badRequest('Вы ввели не корректный email'))
         }
         const user = await UserModel.create({name, email, domain, age})
+
+        const jsonLastCreatedUser = JSON.stringify(user)
+        fs.writeFileSync(__dirname + '/../' + '/JSON/LastCreatedUser.json', jsonLastCreatedUser, (e) => {
+            if (e) {
+                next(ApiError.badRequest('Не удалось локально сохранить файл'))
+            } else {
+                console.log('Файл был успешно сохранен!')
+            }
+        })
+
         return res.json(user)
     }
 
@@ -34,6 +45,16 @@ class UserController {
         if (users.length === 0) {
             return next(ApiError.badRequest('В базе данных нет пользователей'))
         }
+
+        const jsonUsers = JSON.stringify(users)
+        fs.writeFileSync(__dirname + '/../' + '/JSON/GetAllUsers.json', jsonUsers, (e) => {
+            if (e) {
+                next(ApiError.badRequest('Не удалось локально сохранить файл'))
+            } else {
+                console.log('Файл был успешно сохранен!')
+            }
+        })
+
         return res.json(users)
     }
 
@@ -54,6 +75,16 @@ class UserController {
         if (!user) {
             return next(ApiError.badRequest('Пользователь с таким id не найден!'))
         }
+
+        const jsonLastGetUser = JSON.stringify(user)
+        fs.writeFileSync(__dirname + '/../' + '/JSON/LastGetUser.json', jsonLastGetUser, (e) => {
+            if (e) {
+                next(ApiError.badRequest('Не удалось локально сохранить файл'))
+            } else {
+                console.log('Файл был успешно сохранен!')
+            }
+        })
+
         return res.json(user)
     }
 
@@ -75,6 +106,16 @@ class UserController {
                 id: id
             }
         })
+
+        const jsonLastDeletedUser = JSON.stringify(user)
+        fs.writeFileSync(__dirname + '/../' + '/JSON/LastDeletedUser.json', jsonLastDeletedUser, (e) => {
+            if (e) {
+                next(ApiError.badRequest('Не удалось локально сохранить файл'))
+            } else {
+                console.log('Файл был успешно сохранен!')
+            }
+        })
+
         return res.json(user)
     }
 
@@ -117,6 +158,15 @@ class UserController {
         user.domain = domain;
     
         await user.save();
+
+        const jsonLastUpdatedUser = JSON.stringify(user)
+        fs.writeFileSync(__dirname + '/../' + '/JSON/LastUpdatedUser.json', jsonLastUpdatedUser, (e) => {
+            if (e) {
+                next(ApiError.badRequest('Не удалось локально сохранить файл'))
+            } else {
+                console.log('Файл был успешно сохранен!')
+            }
+        })
     
         return res.json(user);
     }
@@ -132,6 +182,16 @@ class UserController {
         if (users.count === 0) {
             return next(ApiError.badRequest('Пользователей с таким возрастом не найдено!'))
         }
+
+        const jsonGetUserByAge = JSON.stringify(users)
+        fs.writeFileSync(__dirname + '/../' + '/JSON/GetUsersByAge.json', jsonGetUserByAge, (e) => {
+            if (e) {
+                next(ApiError.badRequest('Не удалось локально сохранить файл'))
+            } else {
+                console.log('Файл был успешно сохранен!')
+            }
+        })
+
         return res.json(users.rows)
     }
 
@@ -146,6 +206,16 @@ class UserController {
         if (users.count === 0) {
             return next(ApiError.badRequest('Пользователей с таким доменом не найдено!'))
         }
+
+        const jsonGetUserByDomain = JSON.stringify(users)
+        fs.writeFileSync(__dirname + '/../' + '/JSON/GetUsersByDomain.json', jsonGetUserByDomain, (e) => {
+            if (e) {
+                next(ApiError.badRequest('Не удалось локально сохранить файл'))
+            } else {
+                console.log('Файл был успешно сохранен!')
+            }
+        })
+
         return res.json(users.rows)
     }
 
@@ -157,6 +227,16 @@ class UserController {
         if (users.length === 0) {
             return next(ApiError.badRequest('В базе данных нет пользователей!'))
         }
+
+        const jsonGetSortedUsers = JSON.stringify(users)
+        fs.writeFileSync(__dirname + '/../' + '/JSON/GetSortedUsers.json', jsonGetSortedUsers, (e) => {
+            if (e) {
+                next(ApiError.badRequest('Не удалось локально сохранить файл'))
+            } else {
+                console.log('Файл был успешно сохранен!')
+            }
+        })
+
         return res.json(users);
     }
     

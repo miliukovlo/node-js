@@ -1,14 +1,13 @@
-const Router = require('express')
-const router = new Router()
-const UserController = require('../Controllers/UserController')
+const express = require('express')
+const UserRoutes = require('./UserRoutes')
 
-router.get('/users', UserController.getAllUsers)
-router.get('/users/sorted', UserController.getSortedUsersByName)
-router.post('/users', UserController.createUser)
-router.get('/users/:id', UserController.getUser)
-router.delete('/users/:id', UserController.deleteUser)
-router.put('/users/:id', UserController.putUser)
-router.get('/users/age/:age', UserController.getUsersByAge)
-router.get('/users/domain/:domain', UserController.getUsersByDomain)
+module.exports = (
+    userController
+) => {
+    const router = express.Router()
+    const userRoutes = UserRoutes(userController)
 
-module.exports = router
+    router.use('/users', userRoutes)
+
+    return router
+}

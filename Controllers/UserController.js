@@ -1,244 +1,131 @@
-const UserModel = require("../Models/UserModel")
-const ApiError = require('../Error/ApiError')
-const getDomain = require("../Hooks/getDomain")
-const fs = require('fs')
-
 class UserController {
+    constructor(userService) {
+        this.userService = userService
+    }
+    //Подключение к базе данных и синхронизация данных
+    async syncModel() {
+        return await this.userService.syncModel()
+    }
+    //Получение списка всех пользователей
+    getAllUsers = async (req, res) => {
+        try {
+            const users = await this.userService.getAllUsers()
+            if (!users) {
+                res.status(404).json({error: 'Пользователей нет в базе данных!'})
+            }
+            res.status(200).json(users)
+        } catch (error) {
+            res.status(500).json({error: error.message})
+        }
+    }
 
     //Создание пользователя 
 
-    async createUser(req, res, next) {
-        const {name, email, age} = req.body
-        if (!name || !email || !age) {
-            return next(ApiError.badRequest('Вы не ввели данные'))
-        }
-        const isUserInDB = await UserModel.findOne({
-            where: {
-                email
+    createUser = async (req, res) => {
+        try {
+            const user = await this.userService.createUser(req.body)
+            if (!user) {
+                res.status(400).json({error: 'Не удалось создать пользователя'})
             }
-        })
-        if (isUserInDB) {
-            return next(ApiError.badRequest('Пользователь с таким email уже существует'))
+            res.status(201).json(user)
+        } catch (error) {
+            res.status(500).json({error: error.message})
         }
-        const domain = getDomain(email)
-        if (domain === '') {
-            return next(ApiError.badRequest('Вы ввели не корректный email'))
-        }
-        const user = await UserModel.create({name, email, domain, age})
-
-        const jsonLastCreatedUser = JSON.stringify(user)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/LastCreatedUser.json', jsonLastCreatedUser, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
-
-        return res.json(user)
     }
 
-    //Получение данных о всех пользователях
+    // //Получение данных о определенном пользователе
 
-    async getAllUsers (req, res, next) {
-        const users = await UserModel.findAll()
-        if (users.length === 0) {
-            return next(ApiError.badRequest('В базе данных нет пользователей'))
-        }
-
-        const jsonUsers = JSON.stringify(users)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/GetAllUsers.json', jsonUsers, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
+    getUser = async (req, res) => {
+        try {
+            const {id} = req.params
+            const user = await this.userService.getUser(id)
+            if (!user) {
+                res.status(404).json({error: 'Не удалось найти пользователя'})
             }
-        })
-
-        return res.json(users)
+            res.status(200).json(user)
+        } catch (error) {
+            res.status(500).json({error: error.message})
+        }
     }
 
-    //Получение данных о определенном пользователе
+    // // Удаление пользователя из таблицы
 
-    async getUser (req, res, next) {
-        const {id} = req.params
-        if (!Number(id)) {
-            return next(ApiError.badRequest('Вы ввели не корректный id пользователя!'))
-        }
-        const user = await UserModel.findOne(
-            {
-                where: {
-                    id
-                }
+    deleteUser = async (req, res) => {
+        try {
+            const {id} = req.params
+            if (!id) {
+                res.status(400).json({error: 'Вы не указали, что нужно удалить!'})
             }
-        )
-        if (!user) {
-            return next(ApiError.badRequest('Пользователь с таким id не найден!'))
+            const user = await this.userService.deleteUser(id)
+            if (!user) {
+                res.status(400).json({error: 'Не удалось удалить пользователя'})
+            }
+            res.status(200).json(user)
+        } catch (error) {
+            res.status(500).json({error: error.message})
         }
 
-        const jsonLastGetUser = JSON.stringify(user)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/LastGetUser.json', jsonLastGetUser, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
-
-        return res.json(user)
     }
 
-    // Удаление пользователя из таблицы
-    async deleteUser (req, res, next) {
-        const {id} = req.params
-        const user = await UserModel.findOne(
-            {
-                where: {
-                    id
-                }
+    // //Обновление данных о пользователе
+
+    updateUser = async (req, res) => {
+        try {
+            const {id} = req.params
+            const body = req.body
+            if (!body || !id) {
+                res.status(404).json({error: 'Вы не ввели данные!'})
             }
-        )
-        if (!user) {
-            return next(ApiError.badRequest('Пользователь с таким id не найден!'))
+            const user = await this.userService.updateUser(id, body)
+            if (!user) {
+                res.status(400).json({error: 'Не удалось обновить данные пользователя!'})
+            }
+            res.status(200).json({user})
+        } catch(error) {
+            res.status(500).json({error: error.message})
         }
-        await UserModel.destroy({
-            where: {
-                id: id
-            }
-        })
-
-        const jsonLastDeletedUser = JSON.stringify(user)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/LastDeletedUser.json', jsonLastDeletedUser, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
-
-        return res.json(user)
     }
 
-    //Обновление данных о пользователе
-    async putUser(req, res, next) {
-
-        const {id} = req.params;
-        const {name, age, email} = req.body;
-        if (!name && !age && !email) {
-            return next(ApiError.badRequest('Вы ничего не указали!'))
-        }
-        let user = await UserModel.findOne({
-            where: {
-                id
+    // //Получение пользователей с определенным возрастом
+    getUsersByAge = async (req, res) => {
+        try {
+            const {age} = req.params
+            const users = await this.userService.getUsersByAge(age)
+            if (!users) {
+                res.status(404).json({error: 'Пользователи с данным возрастом не найдены!'})
             }
-        })
-        const domain = getDomain(email ? email : user.email);
-
-        const emailInDB = await UserModel.findOne({
-            where: {
-                email: email ? email : user.email
-            }
-        })
-    
-        if (!user) {
-            return next(ApiError.badRequest('Пользователь с таким id не найден!'));
+            res.status(200).json(users)
+        } catch (error) {
+            res.status(500).json({error: error.message})
         }
-    
-        if (domain === '') {
-            return next(ApiError.badRequest('Вы ввели некорректный email'));
-        }
-
-        if (emailInDB && emailInDB.id !== user.id) {
-            return next(ApiError.badRequest('Пользователь с таким email уже существует'))
-        }
-    
-        user.name = name ? name : user.name;
-        user.age = age ? age : user.age;
-        user.email = email ? email : user.email;
-        user.domain = domain;
-    
-        await user.save();
-
-        const jsonLastUpdatedUser = JSON.stringify(user)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/LastUpdatedUser.json', jsonLastUpdatedUser, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
-    
-        return res.json(user);
     }
 
-    //Получение пользователей с определенным возрастом
-    async getUsersByAge (req, res, next) {
-        const {age} = req.params
-        const users = await UserModel.findAndCountAll({
-            where: {
-                age: age
+    // //Получение пользователей с определенным доменом
+    getUsersByDomain = async (req, res) => {
+        try {
+            const {domain} = req.params
+            const users = await this.userService.getUsersByDomain(domain)
+            if (!users) {
+                res.status(404).json({error: 'Пользователи с таким доменом не найдены!'})
             }
-        })
-        if (users.count === 0) {
-            return next(ApiError.badRequest('Пользователей с таким возрастом не найдено!'))
+            res.status(200).json(users)
+        } catch(error) {
+            res.status(500).json({error: error.message})
         }
-
-        const jsonGetUserByAge = JSON.stringify(users)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/GetUsersByAge.json', jsonGetUserByAge, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
-
-        return res.json(users.rows)
     }
 
-    //Получение пользователей с определенным доменом
-    async getUsersByDomain (req, res, next) {
-        const {domain} = req.params
-        const users = await UserModel.findAndCountAll({
-            where: {
-                domain: domain.trim()
+    // //Получение отсортированного списка пользователей по имени
+    getSortedUsersByName = async (req, res) => {
+        try {
+            const users = await this.userService.getSortedUsersByName()
+            if (users.length === 0) {
+                res.status(404).json({error: 'Пользователи не найдены!'})
             }
-        })
-        if (users.count === 0) {
-            return next(ApiError.badRequest('Пользователей с таким доменом не найдено!'))
+            res.status(200).json(users)
+        } catch (error) {
+            res.status(500).json({error: error.message})
         }
-
-        const jsonGetUserByDomain = JSON.stringify(users)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/GetUsersByDomain.json', jsonGetUserByDomain, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
-
-        return res.json(users.rows)
-    }
-
-    //Получение отсортированного списка пользователей по имени
-    async getSortedUsersByName(req, res, next) {
-        const users = await UserModel.findAll({
-            order: [['name', 'ASC']]
-        });
-        if (users.length === 0) {
-            return next(ApiError.badRequest('В базе данных нет пользователей!'))
-        }
-
-        const jsonGetSortedUsers = JSON.stringify(users)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/GetSortedUsers.json', jsonGetSortedUsers, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
-
-        return res.json(users);
     }
     
 }
-module.exports = new UserController()
+module.exports = UserController

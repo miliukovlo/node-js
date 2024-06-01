@@ -10,7 +10,7 @@ class UserController {
     getAllUsers = async (req, res) => {
         try {
             const users = await this.userService.getAllUsers()
-            if (!users) {
+            if (!users || users.length === 0) {
                 res.status(404).json({error: 'Пользователей нет в базе данных!'})
             }
             res.status(200).json(users)
@@ -38,6 +38,10 @@ class UserController {
     getUser = async (req, res) => {
         try {
             const {id} = req.params
+            if (!Number(id)) {
+                res.status(400).json({error: 'Вы ввели неправильный формат id'})
+                return
+            }
             const user = await this.userService.getUser(id)
             if (!user) {
                 res.status(404).json({error: 'Не удалось найти пользователя'})
@@ -91,7 +95,7 @@ class UserController {
         try {
             const {age} = req.params
             const users = await this.userService.getUsersByAge(age)
-            if (!users) {
+            if (!users || users.length === 0) {
                 res.status(404).json({error: 'Пользователи с данным возрастом не найдены!'})
             }
             res.status(200).json(users)

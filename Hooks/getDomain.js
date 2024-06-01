@@ -1,12 +1,15 @@
 const getDomain = (email) => {
     const parts = email.split("@");
     if (parts.length === 2) {
-        const partsOfDomain = parts[1].split('.')
-        if (partsOfDomain.length !== 1) {
-            const domain = partsOfDomain[0]
-            return domain.trim();
+        const domainParts = parts[1].split('.');
+        if (domainParts.length === 2 &&
+            domainParts[0] !== '' &&
+            domainParts[1] !== '' &&
+            domainParts[0] === domainParts[0].toLowerCase() &&
+            domainParts[1] === domainParts[1].toLowerCase()) {
+            return domainParts[0].trim();
         } else {
-            return ''
+            return '';
         }
     } else {
         return "";

@@ -105,9 +105,6 @@ class UserModel {
     }
 
     async updateUser(id, body) {
-        if (!body) {
-            return null
-        }
         const {name, age, email} = body;
         let user = await this.UserScheme.findOne({
             where: {

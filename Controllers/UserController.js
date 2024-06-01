@@ -5,6 +5,16 @@ const fs = require('fs')
 
 class UserController {
 
+    static writeToFile(filePath, data, next) {
+        fs.writeFile(__dirname + '/../JSON/' + filePath, data, (e) => {
+            if (e) {
+                next(ApiError.badRequest('Не удалось локально сохранить файл'))
+            } else {
+                console.log('Файл был успешно сохранен!')
+            }
+        })
+    }
+
     //Создание пользователя 
 
     async createUser(req, res, next) {
@@ -27,13 +37,7 @@ class UserController {
         const user = await UserModel.create({name, email, domain, age})
 
         const jsonLastCreatedUser = JSON.stringify(user)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/LastCreatedUser.json', jsonLastCreatedUser, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
+        UserController.writeToFile('LastCreatedUser.json', jsonLastCreatedUser)
 
         return res.json(user)
     }
@@ -47,13 +51,7 @@ class UserController {
         }
 
         const jsonUsers = JSON.stringify(users)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/GetAllUsers.json', jsonUsers, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
+        UserController.writeToFile('GetAllUsers.json', jsonUsers)
 
         return res.json(users)
     }
@@ -77,13 +75,7 @@ class UserController {
         }
 
         const jsonLastGetUser = JSON.stringify(user)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/LastGetUser.json', jsonLastGetUser, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
+        UserController.writeToFile('LastGetUser.json', jsonLastGetUser)
 
         return res.json(user)
     }
@@ -108,13 +100,7 @@ class UserController {
         })
 
         const jsonLastDeletedUser = JSON.stringify(user)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/LastDeletedUser.json', jsonLastDeletedUser, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
+        UserController.writeToFile('LastDeletedUser.json', jsonLastDeletedUser)
 
         return res.json(user)
     }
@@ -160,13 +146,7 @@ class UserController {
         await user.save();
 
         const jsonLastUpdatedUser = JSON.stringify(user)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/LastUpdatedUser.json', jsonLastUpdatedUser, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
+        UserController.writeToFile('LastUpdatedUser.json', jsonLastUpdatedUser)
     
         return res.json(user);
     }
@@ -184,13 +164,7 @@ class UserController {
         }
 
         const jsonGetUserByAge = JSON.stringify(users)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/GetUsersByAge.json', jsonGetUserByAge, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
+        UserController.writeToFile('GetUsersByAge.json', jsonGetUserByAge)
 
         return res.json(users.rows)
     }
@@ -208,13 +182,7 @@ class UserController {
         }
 
         const jsonGetUserByDomain = JSON.stringify(users)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/GetUsersByDomain.json', jsonGetUserByDomain, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
+        UserController.writeToFile('GetUsersByDomain.json', jsonGetUserByDomain)
 
         return res.json(users.rows)
     }
@@ -229,13 +197,7 @@ class UserController {
         }
 
         const jsonGetSortedUsers = JSON.stringify(users)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/GetSortedUsers.json', jsonGetSortedUsers, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
+        UserController.writeToFile('GetSortedUsers.json', jsonGetSortedUsers)
 
         return res.json(users);
     }

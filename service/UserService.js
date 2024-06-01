@@ -4,6 +4,17 @@ class UserService {
     constructor(userModel) {
         this.userModel = userModel
     }
+
+    static writeToFile(filePath, data, next) {
+        fs.writeFile(__dirname + '/../JSON/' + filePath, data, (e) => {
+            if (e) {
+                return null
+            } else {
+                console.log('Файл был успешно сохранен!')
+            }
+        })
+    }
+
     async syncModel() {
         try {
             return await this.userModel.syncModel()
@@ -16,13 +27,7 @@ class UserService {
         try {
             const users = await this.userModel.getAllUsers()
             const jsonUsers = JSON.stringify(users)
-            fs.writeFile(__dirname + '/../' + '/JSON/GetAllUsers.json', jsonUsers, (e) => {
-                if (e) {
-                    return null
-                } else {
-                    console.log('Файл был успешно сохранен!')
-                }
-            })
+            UserService.writeToFile('GetAllUsers.json', jsonUsers)
             return users
         } catch (e) {
             return e
@@ -34,13 +39,7 @@ class UserService {
                 const user = await this.userModel.createUser(body)
         
                 const jsonLastCreatedUser = JSON.stringify(user)
-                fs.writeFile(__dirname + '/../' + '/JSON/LastCreatedUser.json', jsonLastCreatedUser, (e) => {
-                    if (e) {
-                        return null
-                    } else {
-                        console.log('Файл был успешно сохранен!')
-                    }
-                })
+                UserService.writeToFile('LastCreatedUser.json', jsonLastCreatedUser)
         
                 return user
         } catch (e) {
@@ -56,13 +55,7 @@ class UserService {
             }
 
             const jsonLastGetUser = JSON.stringify(user)
-            fs.writeFile(__dirname + '/../' + '/JSON/LastGetUser.json', jsonLastGetUser, (e) => {
-                if (e) {
-                    return null
-                } else {
-                    console.log('Файл был успешно сохранен!')
-                }
-            })
+            UserService.writeToFile('LastGetUser.json', jsonLastGetUser)
             return user
         } catch (e) {
             return e
@@ -82,13 +75,7 @@ class UserService {
             }
 
             const jsonLastDeletedUser = JSON.stringify(user)
-            fs.writeFile(__dirname + '/../' + '/JSON/LastDeletedUser.json', jsonLastDeletedUser, (e) => {
-                if (e) {
-                    return null
-                } else {
-                    console.log('Файл был успешно сохранен!')
-                }
-            })
+            UserService.writeToFile('LastDeletedUser.json', jsonLastDeletedUser)
 
             return user
             } catch (e) {
@@ -97,7 +84,8 @@ class UserService {
     }
 
     async updateUser(id, body) {
-
+        try {
+            
         if (!id || !body) {
             return null
         }
@@ -105,75 +93,66 @@ class UserService {
         const user = this.userModel.updateUser(id, body)
 
         const jsonLastUpdatedUser = JSON.stringify(user)
-        fs.writeFile(__dirname + '/../' + '/JSON/LastUpdatedUser.json', jsonLastUpdatedUser, (e) => {
-            if (e) {
-                return null
-            } else {
-                console.log('Файл был успешно сохранен!')
-            }
-        })
+        UserService.writeToFile('LastUpdatedUser.json', jsonLastUpdatedUser)
 
         return user
+        } catch (e) {
+            return e
+        }
     }
 
     async getUsersByAge(age) {
-        if (!age) {
-            return null
-        }
-        const users = this.userModel.getUsersByAge(age)
-        if (!users) {
-            return null
-        }
-
-        const jsonGetUserByAge = JSON.stringify(users)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/GetUsersByAge.json', jsonGetUserByAge, (e) => {
-            if (e) {
+        try {
+            if (!age) {
                 return null
-            } else {
-                console.log('Файл был успешно сохранен!')
             }
-        })
-
-        return users
+            const users = this.userModel.getUsersByAge(age)
+            if (!users) {
+                return null
+            }
+    
+            const jsonGetUserByAge = JSON.stringify(users)
+            UserService.writeToFile('GetUsersByAge.json', jsonGetUserByAge)
+    
+            return users
+        } catch (e) {
+            return e
+        }
     }
 
     async getUsersByDomain(domain) {
-        if (!domain) {
-            return null
-        }
-        const users = this.userModel.getUsersByDomain(domain)
-        if (!users) {
-            return null
-        }
-
-        const jsonGetUserByDomain = JSON.stringify(users)
-        fs.writeFile(__dirname + '/../' + '/JSON/GetUsersByDomain.json', jsonGetUserByDomain, (e) => {
-            if (e) {
+        try {
+            if (!domain) {
                 return null
-            } else {
-                console.log('Файл был успешно сохранен!')
             }
-        })
-
-        return users
+            const users = this.userModel.getUsersByDomain(domain)
+            if (!users) {
+                return null
+            }
+    
+            const jsonGetUserByDomain = JSON.stringify(users)
+            UserService.writeToFile('GetUsersByDomain.json', jsonGetUserByDomain)
+    
+            return users
+        } catch (e) {
+            return e
+        }
     }
 
     async getSortedUsersByName() {
-        const users = await this.userModel.getSortedUsersByName()
-        if (!users) {
-            return null
-        }
-
-        const jsonGetSortedUsers = JSON.stringify(users)
-        fs.writeFileSync(__dirname + '/../' + '/JSON/GetSortedUsers.json', jsonGetSortedUsers, (e) => {
-            if (e) {
-                next(ApiError.badRequest('Не удалось локально сохранить файл'))
-            } else {
-                console.log('Файл был успешно сохранен!')
+        try {
+            const users = await this.userModel.getSortedUsersByName()
+            if (!users) {
+                return null
             }
-        })
-
-        return users
+    
+            const jsonGetSortedUsers = JSON.stringify(users)
+            UserService.writeToFile('GetSortedUsers.json', jsonGetSortedUsers)
+    
+            return users
+        } catch (e) {
+            return e
+        }
     }
 
 }

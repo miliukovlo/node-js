@@ -41,10 +41,6 @@ class UserModel {
 
     async getAllUsers () {
         const users = await this.UserScheme.findAll()
-        if (users.length === 0) {
-            return null
-        }
-
         return users
     }
 
@@ -75,9 +71,6 @@ class UserModel {
     }
 
     async getUser(id) {
-        if (!id) {
-            return null
-        }
         const user = await this.UserScheme.findOne({
             where: {
                 id: id
@@ -147,9 +140,6 @@ class UserModel {
                 age: age
             }
         })
-        if (!users) {
-            return null
-        }
         return users
     }
 
@@ -159,9 +149,6 @@ class UserModel {
                 domain: domain.trim()
             }
         })
-        if (!users) {
-            return null
-        }
         return users
     }
 
@@ -169,9 +156,6 @@ class UserModel {
         const users = await this.UserScheme.findAll({
             order: [['name', 'ASC']]
         })
-        if (!users) {
-            return null
-        }
         return users
     }
 }

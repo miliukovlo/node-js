@@ -1,4 +1,5 @@
 const fs = require('fs')
+const getDomain = require('../Hooks/getDomain')
 
 class UserService {
     constructor(userModel) {
@@ -36,10 +37,23 @@ class UserService {
 
     async createUser(body) {
         try {
-                const user = await this.userModel.createUser(body)
-                const jsonLastCreatedUser = JSON.stringify(user)
-                UserService.writeToFile('LastCreatedUser.json', jsonLastCreatedUser)
-                return user
+                const {name, email, age} = body
+                if (!name || !age || !email) {
+                    return null
+                }
+                const domain = getDomain(email)
+                if (domain === '') {
+                    return null
+                }
+                const isUserInDB = await this.userModel.getUserByEmail(email)
+                if (isUserInDB === null) {
+                    const user = await this.userModel.createUser(name, age, email, domain)
+                    const jsonLastCreatedUser = JSON.stringify(user)
+                    UserService.writeToFile('LastCreatedUser.json', jsonLastCreatedUser)
+                    return user
+                } else {
+                    return null
+                }
         } catch (e) {
             return e
         }
@@ -47,7 +61,7 @@ class UserService {
 
     async getUser(id) {
         try {
-            const user = await this.userModel.getUser(id)
+            const user = await this.userModel.getUserById(id)
             const jsonLastGetUser = JSON.stringify(user)
             UserService.writeToFile('LastGetUser.json', jsonLastGetUser)
             return user
@@ -69,10 +83,22 @@ class UserService {
 
     async updateUser(id, body) {
         try {
-        const user = this.userModel.updateUser(id, body)
-        const jsonLastUpdatedUser = JSON.stringify(user)
-        UserService.writeToFile('LastUpdatedUser.json', jsonLastUpdatedUser)
-        return user
+            const isUserInDB = await this.userModel.getUserById(id)
+            if (isUserInDB === null) {
+                return null
+            }
+            const domain = getDomain(body.email ? body.email : isUserInDB.email);
+            if (domain === '') {
+                return null
+            }
+            const emailInDB = await this.userModel.getUserByEmail(body.email ? body.email : isUserInDB.email)
+            if (emailInDB && emailInDB.id !== user.id) {
+                return null
+            }
+            const user = this.userModel.updateUser(id, body, domain)
+            const jsonLastUpdatedUser = JSON.stringify(user)
+            UserService.writeToFile('LastUpdatedUser.json', jsonLastUpdatedUser)
+            return user
         } catch (e) {
             return e
         }
@@ -91,7 +117,7 @@ class UserService {
 
     async getUsersByDomain(domain) {
         try {
-            const users = this.userModel.getUsersByDomain(domain)
+            const users = this.userModel.getUsersByDomain(domain.trim().toLowerCase())
             const jsonGetUserByDomain = JSON.stringify(users)
             UserService.writeToFile('GetUsersByDomain.json', jsonGetUserByDomain)
             return users

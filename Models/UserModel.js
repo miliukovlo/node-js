@@ -44,33 +44,17 @@ class UserModel {
         return users
     }
 
-    async createUser(body) {
-        const {name, email, age} = body
-        if (!name || !email || !age) {
-            return null
-        }
-        const domain = getDomain(email)
-        if (domain === '') {
-            return null
-        }
-        const isUserInDB = await this.UserScheme.findOne({
-            where: {
-                email
-                }
-            })
-        if (isUserInDB) {
-            return null
-        }
-    const user = await this.UserScheme.create({
-        name: name,
-        email: email,
-        age: age,
-        domain: domain
-    })
-    return user
+    async createUser(name, age, email, domain) {
+        const user = await this.UserScheme.create({
+            name: name,
+            email: email,
+            age: age,
+            domain: domain
+        })
+        return user
     }
 
-    async getUser(id) {
+    async getUserById(id) {
         const user = await this.UserScheme.findOne({
             where: {
                 id: id
@@ -81,11 +65,19 @@ class UserModel {
         }
         return user
     }
-
-    async deleteUser(id) {
-        if (!id) {
+    async getUserByEmail(email) {
+        const user = await this.UserScheme.findOne({
+            where: {
+                email: email
+            }
+        })
+        if (!user) {
             return null
         }
+        return user
+    }
+
+    async deleteUser(id) {
         const user = await this.UserScheme.destroy({
             where: {
                 id: id 
@@ -97,33 +89,12 @@ class UserModel {
         return user
     }
 
-    async updateUser(id, body) {
-        const {name, age, email} = body;
+    async updateUser(id, {name, age, email}, domain) {
         let user = await this.UserScheme.findOne({
             where: {
                 id
             }
         })
-        const domain = getDomain(email ? email : user.email);
-
-        const emailInDB = await this.UserScheme.findOne({
-            where: {
-                email: email ? email : user.email
-            }
-        })
-    
-        if (!user) {
-            return null
-        }
-    
-        if (domain === '') {
-            return null
-        }
-
-        if (emailInDB && emailInDB.id !== user.id) {
-            return null
-        }
-    
         user.name = name ? name : user.name;
         user.age = age ? age : user.age;
         user.email = email ? email : user.email;
@@ -146,7 +117,7 @@ class UserModel {
     async getUsersByDomain(domain) {
         const users = await this.UserScheme.findAll({
             where: {
-                domain: domain.trim()
+                domain: domain
             }
         })
         return users

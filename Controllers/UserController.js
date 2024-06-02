@@ -25,7 +25,7 @@ class UserController {
     createUser = async (req, res) => {
         try {
             const user = await this.userService.createUser(req.body)
-            if (!user) {
+            if (user === null) {
                 res.status(400).json({error: 'Не удалось создать пользователя'})
                 return
             }
@@ -40,7 +40,6 @@ class UserController {
     getUser = async (req, res) => {
         try {
             const {id} = req.params
-            UserController.checkId(id)
             if (!Number(id)) {
                 res.status(400).json({error: 'Вы ввели неправильный формат id'})
                 return
@@ -88,8 +87,9 @@ class UserController {
             }
             const body = req.body
             const user = await this.userService.updateUser(id, body)
-            if (!user) {
+            if (user === null) {
                 res.status(400).json({error: 'Не удалось обновить данные пользователя!'})
+                return
             }
             res.status(200).json({user})
         } catch(error) {
@@ -108,6 +108,7 @@ class UserController {
             const users = await this.userService.getUsersByAge(age)
             if (!users || users.length === 0) {
                 res.status(404).json({error: 'Пользователи с данным возрастом не найдены!'})
+                return
             }
             res.status(200).json(users)
         } catch (error) {

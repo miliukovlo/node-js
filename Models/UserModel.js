@@ -78,14 +78,19 @@ class UserModel {
     }
 
     async deleteUser(id) {
-        const user = await this.UserScheme.destroy({
+        const user = await this.UserScheme.findOne({
             where: {
-                id: id 
+                id: id
             }
         })
         if (!user) {
             return null
         }
+        await this.UserScheme.destroy({
+            where: {
+                id: id 
+            }
+        })
         return user
     }
 

@@ -6,10 +6,10 @@ class UserService {
         this.userModel = userModel
     }
 
-    static writeToFile(filePath, data, next) {
+    static writeToFile(filePath, data) {
         fs.writeFile(__dirname + '/../JSON/' + filePath, data, (e) => {
             if (e) {
-                return null
+                return console.log('Неудалось сохранить файл!')
             } else {
                 console.log('Файл был успешно сохранен!')
             }
@@ -95,7 +95,7 @@ class UserService {
             if (emailInDB && emailInDB.id !== user.id) {
                 return null
             }
-            const user = this.userModel.updateUser(id, body, domain)
+            const user = await this.userModel.updateUser(id, body, domain)
             const jsonLastUpdatedUser = JSON.stringify(user)
             UserService.writeToFile('LastUpdatedUser.json', jsonLastUpdatedUser)
             return user
@@ -106,7 +106,7 @@ class UserService {
 
     async getUsersByAge(age) {
         try {
-            const users = this.userModel.getUsersByAge(age)
+            const users = await this.userModel.getUsersByAge(age)
             const jsonGetUserByAge = JSON.stringify(users)
             UserService.writeToFile('GetUsersByAge.json', jsonGetUserByAge)
             return users
@@ -117,7 +117,7 @@ class UserService {
 
     async getUsersByDomain(domain) {
         try {
-            const users = this.userModel.getUsersByDomain(domain.trim().toLowerCase())
+            const users = await this.userModel.getUsersByDomain(domain.trim().toLowerCase())
             const jsonGetUserByDomain = JSON.stringify(users)
             UserService.writeToFile('GetUsersByDomain.json', jsonGetUserByDomain)
             return users
